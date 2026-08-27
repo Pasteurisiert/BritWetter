@@ -366,19 +366,24 @@ h1 {
     font-weight: 500;
 }
 
-/* Time Toggle Bar */
+/* Time Toggle Bar (Sticky Header) */
 .time-toggle-bar {
+    position: sticky;
+    top: 0;
+    z-index: 500;
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: space-between;
     align-items: center;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--card-border-glow);
     border-radius: var(--radius-lg);
-    padding: 10px 14px;
-    margin-bottom: 12px;
-    backdrop-filter: blur(12px);
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .time-badge {

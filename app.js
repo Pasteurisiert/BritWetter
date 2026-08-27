@@ -254,19 +254,12 @@ function renderGrid() {
     const grid = document.getElementById('weather-grid');
     grid.innerHTML = '';
 
-    const filtered = weatherDataStore.filter(item => {
-        if (currentFilter === 'hamburg') return item.region === 'hamburg';
-        if (currentFilter === 'gb') return item.region === 'gb';
-        if (currentFilter === 'available') return item.available === true;
-        return true;
-    });
-
-    if (filtered.length === 0) {
-        grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Keine Stopps für diesen Filter gefunden.</div>`;
+    if (weatherDataStore.length === 0) {
+        grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Keine Stopps gefunden.</div>`;
         return;
     }
 
-    filtered.forEach(item => {
+    weatherDataStore.forEach(item => {
         const card = createWeatherCard(item);
         grid.appendChild(card);
     });

@@ -379,19 +379,24 @@
             font-weight: 500;
         }
 
-        /* Time Toggle Bar */
+        /* Time Toggle Bar (Sticky Header) */
         .time-toggle-bar {
+            position: sticky;
+            top: 0;
+            z-index: 500;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--card-border-glow);
             border-radius: var(--radius-lg);
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            backdrop-filter: blur(12px);
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         }
 
         .time-badge {
@@ -798,29 +803,21 @@
                     </span>
                 </div>
             </div>
-
-            <!-- Time Toggle Bar -->
-            <div class="time-toggle-bar">
-                <div class="time-badge">
-                    <span>⏱️ Zeitfenster:</span>
-                </div>
-                <div class="toggle-switch">
-                    <button class="toggle-btn active" data-time="8-12">☀️ 8–12 Uhr</button>
-                    <button class="toggle-btn" data-time="12-16">🌤️ 12–16 Uhr</button>
-                    <button class="toggle-btn" data-time="16-20">🌅 16–20 Uhr</button>
-                    <button class="toggle-btn" data-time="8-20">📊 8–20 Uhr</button>
-                    <button class="toggle-btn" data-time="24h">🌙 24 Std.</button>
-                </div>
-            </div>
-
-            <!-- Filter Pills -->
-            <div class="filter-container">
-                <button class="filter-pill active" data-filter="all">Alle Stopps</button>
-                <button class="filter-pill" data-filter="hamburg">Hamburg</button>
-                <button class="filter-pill" data-filter="gb">GB & Irland</button>
-                <button class="filter-pill" data-filter="available">Im 16-Tage-Fenster</button>
-            </div>
         </header>
+
+        <!-- Time Toggle Bar (Sticky Header) -->
+        <div class="time-toggle-bar">
+            <div class="time-badge">
+                <span>⏱️ Zeitfenster:</span>
+            </div>
+            <div class="toggle-switch">
+                <button class="toggle-btn active" data-time="8-12">☀️ 8–12 Uhr</button>
+                <button class="toggle-btn" data-time="12-16">🌤️ 12–16 Uhr</button>
+                <button class="toggle-btn" data-time="16-20">🌅 16–20 Uhr</button>
+                <button class="toggle-btn" data-time="8-20">📊 8–20 Uhr</button>
+                <button class="toggle-btn" data-time="24h">🌙 24 Std.</button>
+            </div>
+        </div>
 
         <!-- Main Content Grid -->
         <main class="main-content">
@@ -1096,19 +1093,12 @@
             const grid = document.getElementById('weather-grid');
             grid.innerHTML = '';
 
-            const filtered = weatherDataStore.filter(item => {
-                if (currentFilter === 'hamburg') return item.region === 'hamburg';
-                if (currentFilter === 'gb') return item.region === 'gb';
-                if (currentFilter === 'available') return item.available === true;
-                return true;
-            });
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Keine Stopps für diesen Filter gefunden.</div>`;
+            if (weatherDataStore.length === 0) {
+                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Keine Stopps gefunden.</div>`;
                 return;
             }
 
-            filtered.forEach(item => {
+            weatherDataStore.forEach(item => {
                 const card = createWeatherCard(item);
                 grid.appendChild(card);
             });
