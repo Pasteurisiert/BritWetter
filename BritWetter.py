@@ -1,5 +1,6 @@
 import time
 import requests
+from collections import Counter
 
 TARGETS = [
     {"city": "Hamburg", "lat": 53.5511, "lon": 9.9937, "date": "2026-09-02"},
@@ -33,18 +34,61 @@ def fmt_val(val, unit="", decimals=1):
         return f"{int(val)}{unit}"
     return f"{val:.{decimals}f}{unit}"
 
-def get_forecast(lat, lon, target_date, retries=2):
+def get_forecast_slot(hourly, target_date, min_hour, max_hour):
+    times = hourly.get("time", [])
+    indices = []
+    for i, t in enumerate(times):
+        if t.startswith(target_date):
+            hour = int(t.split("T")[1].split(":")[0])
+            if min_hour <= hour <= max_hour:
+                indices.append(i)
+    if not indices:
+        return None
+
+    temps = [hourly.get("temperature_2m", [])[i] for i in indices if i < len(hourly.get("temperature_2m", [])) and hourly.get("temperature_2m", [])[i] is not None]
+    probs = [hourly.get("precipitation_probability", [])[i] for i in indices if i < len(hourly.get("precipitation_probability", [])) and hourly.get("precipitation_probability", [])[i] is not None]
+    rains = [hourly.get("precipitation", [])[i] for i in indices if i < len(hourly.get("precipitation", [])) and hourly.get("precipitation", [])[i] is not None]
+    codes = [hourly.get("weathercode", [])[i] for i in indices if i < len(hourly.get("weathercode", [])) and hourly.get("weathercode", [])[i] is not None]
+    winds = [hourly.get("wind_speed_10m", [])[i] for i in indices if i < len(hourly.get("wind_speed_10m", [])) and hourly.get("wind_speed_10m", [])[i] is not None]
+    gusts = [hourly.get("wind_gusts_10m", [])[i] for i in indices if i < len(hourly.get("wind_gusts_10m", [])) and hourly.get("wind_gusts_10m", [])[i] is not None]
+
+    if codes:
+        severe = [c for c in codes if c >= 50]
+        if severe:
+            code = max(severe)
+        else:
+            code = Counter(codes).most_common(1)[0][0]
+        condition = WEATHER_CODES.get(code, f"Code {code}")
+    else:
+        condition = "Noch keine Daten"
+
+    t_max = fmt_val(max(temps) if temps else None, "°C")
+    t_min = fmt_val(min(temps) if temps else None, "°C")
+    prob = fmt_val(max(probs) if probs else None, "%", decimals=0)
+    rain = fmt_val(sum(rains) if rains else None, " mm")
+    wind_max = fmt_val(max(winds) if winds else None, " km/h", decimals=0)
+    gust_max = max(gusts) if gusts else None
+
+    wind_str = wind_max
+    if gust_max is not None and winds and gust_max > max(winds) + 5:
+        wind_str += f" (Böen {int(gust_max)} km/h)"
+
+    return f"{condition:<18} | {t_max:>6} / {t_min:<6} | Regen: {prob:>4} ({rain}) | Wind: {wind_str}"
+
+def get_forecast(lat, lon, target_date, slot="8-12", retries=2):
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": lat,
         "longitude": lon,
-        "daily": [
+        "hourly": [
+            "temperature_2m",
+            "precipitation_probability",
+            "precipitation",
             "weathercode",
-            "temperature_2m_max",
-            "temperature_2m_min",
-            "precipitation_sum",
-            "precipitation_probability_max"
+            "wind_speed_10m",
+            "wind_gusts_10m"
         ],
+        "wind_speed_unit": "kmh",
         "timezone": "auto",
         "forecast_days": 16
     }
@@ -53,38 +97,30 @@ def get_forecast(lat, lon, target_date, retries=2):
         response = requests.get(url, params=params, timeout=10)
         if response.status_code == 429 and retries > 0:
             time.sleep(0.4)
-            return get_forecast(lat, lon, target_date, retries=retries-1)
+            return get_forecast(lat, lon, target_date, slot=slot, retries=retries-1)
         response.raise_for_status()
         data = response.json()
     except Exception as e:
         return f"Verbindungsfehler: {e}"
 
-    daily = data.get("daily", {})
-    times = daily.get("time", [])
-    
-    if target_date not in times:
+    hourly = data.get("hourly", {})
+    slots_map = {
+        "8-12": (8, 12),
+        "12-16": (12, 16),
+        "16-20": (16, 20),
+        "8-20": (8, 20),
+        "24h": (0, 23)
+    }
+    min_h, max_h = slots_map.get(slot, (8, 12))
+    res = get_forecast_slot(hourly, target_date, min_h, max_h)
+    if res is None:
         return "Datum liegt noch außerhalb des 16-Tage-Fensters."
+    return res
 
-    idx = times.index(target_date)
-    
-    # Werte sicher extrahieren (können am Rand des Vorhersagezeitraums None sein)
-    code = daily.get("weathercode", [None])[idx]
-    if code is None:
-        condition = "Noch keine Daten"
-    else:
-        condition = WEATHER_CODES.get(code, f"Code {code}")
-    
-    t_max = fmt_val(daily.get("temperature_2m_max", [None])[idx], "°C")
-    t_min = fmt_val(daily.get("temperature_2m_min", [None])[idx], "°C")
-    prob = fmt_val(daily.get("precipitation_probability_max", [None])[idx], "%", decimals=0)
-    rain = fmt_val(daily.get("precipitation_sum", [None])[idx], " mm")
-
-    return f"{condition:<18} | {t_max:>6} / {t_min:<6} | Regen: {prob:>4} ({rain})"
-
-print(f"{'Ort':<12} | {'Datum':<10} | {'Wetter':<18} | {'Temp (Max/Min)':<15} | {'Niederschlag'}")
-print("-" * 80)
+print(f"{'Ort':<12} | {'Datum':<10} | {'Wetter (8-12h)':<18} | {'Temp (Max/Min)':<15} | {'Niederschlag (8-12h)':<22} | {'Wind (km/h)'}")
+print("-" * 110)
 
 for item in TARGETS:
-    res = get_forecast(item["lat"], item["lon"], item["date"])
+    res = get_forecast(item["lat"], item["lon"], item["date"], slot="8-12")
     print(f"{item['city']:<12} | {item['date']:<10} | {res}")
-    time.sleep(0.1)  # Kleine Pause, um Ratenbeschränkungen zu vermeiden
+    time.sleep(0.1)

@@ -55,6 +55,20 @@
                 </div>
             </div>
 
+            <!-- Time Toggle Bar -->
+            <div class="time-toggle-bar">
+                <div class="time-badge">
+                    <span>⏱️ Zeitfenster:</span>
+                </div>
+                <div class="toggle-switch">
+                    <button class="toggle-btn active" data-time="8-12">☀️ 8–12 Uhr</button>
+                    <button class="toggle-btn" data-time="12-16">🌤️ 12–16 Uhr</button>
+                    <button class="toggle-btn" data-time="16-20">🌅 16–20 Uhr</button>
+                    <button class="toggle-btn" data-time="8-20">📊 8–20 Uhr</button>
+                    <button class="toggle-btn" data-time="24h">🌙 24 Std.</button>
+                </div>
+            </div>
+
             <!-- Filter Pills -->
             <div class="filter-container">
                 <button class="filter-pill active" data-filter="all">Alle Stopps</button>
@@ -79,6 +93,48 @@
             <p>Datenquelle: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a> • Auto-Zeitzone</p>
             <p class="pwa-hint">💡 Tipp: Füge diese Seite zum iPhone- / Smartphone-Homescreen hinzu für App-Feeling.</p>
         </footer>
+    </div>
+
+    <!-- Trend Modal -->
+    <div id="trend-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <button id="modal-close-btn" class="modal-close-btn" aria-label="Schließen">&times;</button>
+            
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span id="modal-city-flag" class="modal-flag">🇩🇪</span>
+                    <div>
+                        <h2 id="modal-city-name" class="modal-city">Hamburg</h2>
+                        <p id="modal-date-text" class="modal-date">Mittwoch, 02. September 2026</p>
+                    </div>
+                </div>
+                <div class="modal-summary-pills">
+                    <span id="modal-summary-temp" class="summary-pill temp-pill">--°C</span>
+                    <span id="modal-summary-rain" class="summary-pill rain-pill">--</span>
+                    <span id="modal-summary-wind" class="summary-pill wind-pill">--</span>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-color temp-color"></span> Temperatur (°C)</div>
+                    <div class="legend-item"><span class="legend-color rain-color"></span> Niederschlag (mm / %)</div>
+                </div>
+                
+                <div class="chart-scroll-container">
+                    <div id="chart-wrapper" class="chart-wrapper">
+                        <!-- SVG Chart inserted dynamically -->
+                    </div>
+                </div>
+
+                <div class="hourly-table-container">
+                    <h3 class="table-title">Stündlicher Verlauf (24 Stunden)</h3>
+                    <div id="hourly-table" class="hourly-grid">
+                        <!-- Hourly items inserted dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
