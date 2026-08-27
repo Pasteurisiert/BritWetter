@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wetter-Reiseplaner | GB & Hamburg</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Web App Favicon / Apple Touch Icon -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke-linecap="round"/>
+                            <path d="M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>Wetter-Reiseplaner</h1>
+                        <p class="subtitle">Großbritannien & Hamburg 2026</p>
+                    </div>
+                </div>
+                <button id="refresh-btn" class="icon-btn" title="Daten aktualisieren" aria-label="Aktualisieren">
+                    <svg id="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <span class="stat-label">Stopps</span>
+                    <span class="stat-value" id="stat-count">9 Tage</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Zeitraum</span>
+                    <span class="stat-value">02.9. – 13.9.</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value status-badge" id="stat-status">
+                        <span class="pulse-dot"></span> Live Open-Meteo
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="filter-container">
+                <button class="filter-pill active" data-filter="all">Alle Stopps</button>
+                <button class="filter-pill" data-filter="hamburg">Hamburg</button>
+                <button class="filter-pill" data-filter="gb">GB & Irland</button>
+                <button class="filter-pill" data-filter="available">Im 16-Tage-Fenster</button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="main-content">
+            <div id="loader" class="loader-container">
+                <div class="spinner"></div>
+                <p>Lade Wetterdaten aus Open-Meteo...</p>
+            </div>
+
+            <div id="weather-grid" class="weather-grid hidden"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Datenquelle: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a> • Auto-Zeitzone</p>
+            <p class="pwa-hint">💡 Tipp: Füge diese Seite zum iPhone- / Smartphone-Homescreen hinzu für App-Feeling.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
