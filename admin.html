@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reise-Planer Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --card-bg: rgba(23, 31, 51, 0.8);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-indigo: #6366f1;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --radius-md: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            padding: 24px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        input, select, button {
+            font-family: inherit;
+            font-size: 0.9rem;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--card-border);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--accent-indigo); }
+
+        .btn {
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            border: none;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-add { background: var(--accent-indigo); color: #fff; }
+        .btn-save { background: var(--accent-emerald); color: #fff; font-size: 1rem; width: 100%; padding: 14px; }
+        .btn-del { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose); padding: 8px 12px; }
+
+        .stop-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .stop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+        }
+        .stop-info { display: flex; gap: 12px; align-items: center; }
+        .stop-date { color: var(--accent-indigo); font-weight: 700; }
+        .stop-coords { font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Reiseplaner Admin</h1>
+        <p class="subtitle">Stopps erfassen, verwalten und als <code>trips.json</code> für das GitHub-Repository herunterladen.</p>
+
+        <!-- Stopp hinzufügen -->
+        <div class="card">
+            <h2 style="font-size: 1rem; margin-bottom: 12px;">Neuen Stopp hinzufügen</h2>
+            <div class="form-row">
+                <input type="text" id="city-input" placeholder="Stadt (z.B. Zürich, Hamburg)" required>
+                <input type="date" id="date-input" required>
+                <input type="text" id="region-input" placeholder="Region (z.B. ch, de, gb)">
+                <button class="btn btn-add" id="add-btn">+ Hinzufügen</button>
+            </div>
+            <p id="geo-status" style="font-size: 0.75rem; color: var(--accent-emerald); margin-top: 6px;"></p>
+        </div>
+
+        <!-- Aktuelle Route -->
+        <div class="card">
+            <h2 style="font-size: 1rem; margin-bottom: 12px;">Reiseroute (<span id="stop-count">0</span> Stopps)</h2>
+            <div id="stop-list" class="stop-list"></div>
+            <button class="btn btn-save" id="download-btn">💾 trips.json generieren & herunterladen</button>
+        </div>
+    </div>
+
+    <script>
+        let targets = [
+            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-02", region: "ch" },
+            { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-02", region: "hamburg" },
+            { city: "Cork", country: "IE", lat: 51.8985, lon: -8.4756, date: "2026-09-05", region: "gb" },
+            { city: "Dublin", country: "IE", lat: 53.3498, lon: -6.2603, date: "2026-09-06", region: "gb" },
+            { city: "Belfast", country: "UK", lat: 54.5973, lon: -5.9301, date: "2026-09-07", region: "gb" },
+            { city: "Glasgow", country: "UK", lat: 55.8642, lon: -4.2518, date: "2026-09-08", region: "gb" },
+            { city: "Kirkwall", country: "UK", lat: 58.9809, lon: -2.9605, date: "2026-09-10", region: "gb" },
+            { city: "Invergordon", country: "UK", lat: 57.6896, lon: -4.1685, date: "2026-09-11", region: "gb" },
+            { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-13", region: "hamburg" },
+            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-13", region: "ch" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderList();
+
+            document.getElementById('add-btn').addEventListener('click', async () => {
+                const city = document.getElementById('city-input').value.trim();
+                const date = document.getElementById('date-input').value;
+                const region = document.getElementById('region-input').value.trim().toLowerCase() || 'all';
+                const status = document.getElementById('geo-status');
+
+                if (!city || !date) {
+                    alert('Bitte Stadt und Datum ausfüllen!');
+                    return;
+                }
+
+                status.textContent = 'Suche Koordinaten via Geocoding...';
+                
+                try {
+                    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=de&format=json`);
+                    const geoData = await geoRes.json();
+
+                    if (!geoData.results || geoData.results.length === 0) {
+                        alert(`Ort "${city}" wurde nicht gefunden.`);
+                        status.textContent = '';
+                        return;
+                    }
+
+                    const match = geoData.results[0];
+                    targets.push({
+                        city: match.name,
+                        country: match.country_code ? match.country_code.toUpperCase() : "DE",
+                        lat: parseFloat(match.latitude.toFixed(4)),
+                        lon: parseFloat(match.longitude.toFixed(4)),
+                        date: date,
+                        region: region
+                    });
+
+                    // Nach Datum sortieren
+                    targets.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    status.textContent = `Gefunden: ${match.name} (${match.country_code}) [${match.latitude.toFixed(2)}, ${match.longitude.toFixed(2)}]`;
+                    document.getElementById('city-input').value = '';
+                    renderList();
+                } catch (e) {
+                    alert('Fehler bei der Geocoding-Abfrage.');
+                    status.textContent = '';
+                }
+            });
+
+            document.getElementById('download-btn').addEventListener('click', () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(targets, null, 2));
+                const dlAnchor = document.createElement('a');
+                dlAnchor.setAttribute("href", dataStr);
+                dlAnchor.setAttribute("download", "trips.json");
+                document.body.appendChild(dlAnchor);
+                dlAnchor.click();
+                dlAnchor.remove();
+            });
+        });
+
+        function renderList() {
+            const list = document.getElementById('stop-list');
+            const count = document.getElementById('stop-count');
+            list.innerHTML = '';
+            count.textContent = targets.length;
+
+            targets.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'stop-item';
+                el.innerHTML = `
+                    <div class="stop-info">
+                        <span class="stop-date">${item.date}</span>
+                        <strong>${item.city}</strong> (${item.country})
+                        <span class="stop-coords">${item.lat}, ${item.lon}</span>
+                    </div>
+                    <button class="btn btn-del" onclick="removeStop(${index})">Löschen</button>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        window.removeStop = function(index) {
+            targets.splice(index, 1);
+            renderList();
+        };
+    </script>
+</body>
+</html>
