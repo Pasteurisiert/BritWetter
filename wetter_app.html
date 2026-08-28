@@ -151,9 +151,15 @@
         /* Stats Bar */
         .stats-bar {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-bottom: 18px;
+        }
+
+        @media (min-width: 640px) {
+            .stats-bar {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .stat-card {
@@ -204,37 +210,68 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        /* Filters */
-        .filter-container {
+        /* Time Toggle Bar (Sticky Header) */
+        .time-toggle-bar {
+            position: sticky;
+            top: 0;
+            z-index: 500;
             display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--card-border-glow);
+            border-radius: var(--radius-lg);
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .time-badge {
+            display: flex;
+            align-items: center;
             gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            display: flex;
+            gap: 2px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             overflow-x: auto;
-            padding-bottom: 4px;
+            max-width: 100%;
             scrollbar-width: none;
         }
 
-        .filter-container::-webkit-scrollbar {
+        .toggle-switch::-webkit-scrollbar {
             display: none;
         }
 
-        .filter-pill {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-secondary);
-            padding: 8px 14px;
-            border-radius: 30px;
-            font-size: 0.82rem;
-            font-weight: 600;
+        .toggle-btn {
             white-space: nowrap;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .filter-pill.active {
+        .toggle-btn.active {
             background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
             color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
         }
 
         /* Loader */
@@ -286,6 +323,7 @@
             overflow: hidden;
             transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             box-shadow: var(--shadow-glass);
+            cursor: pointer;
         }
 
         .weather-card:hover {
@@ -296,6 +334,7 @@
         .weather-card.out-of-range {
             opacity: 0.7;
             background: rgba(15, 23, 42, 0.5);
+            cursor: default;
         }
 
         /* Card Header */
@@ -379,70 +418,6 @@
             font-weight: 500;
         }
 
-        /* Time Toggle Bar (Sticky Header) */
-        .time-toggle-bar {
-            position: sticky;
-            top: 0;
-            z-index: 500;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid var(--card-border-glow);
-            border-radius: var(--radius-lg);
-            padding: 12px 14px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        .time-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .toggle-switch {
-            display: flex;
-            gap: 2px;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 4px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            overflow-x: auto;
-            max-width: 100%;
-            scrollbar-width: none;
-        }
-
-        .toggle-switch::-webkit-scrollbar {
-            display: none;
-        }
-
-        .toggle-btn {
-            white-space: nowrap;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-btn.active {
-            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
-        }
-
         /* Card Metrics */
         .card-metrics {
             background: rgba(0, 0, 0, 0.22);
@@ -461,7 +436,8 @@
             width: 100%;
         }
 
-        .metric-row.wind-row {
+        .metric-row.wind-row,
+        .metric-row.sun-row {
             padding-top: 6px;
             border-top: 1px solid rgba(255, 255, 255, 0.07);
         }
@@ -511,11 +487,6 @@
             font-size: 0.8rem;
             text-align: center;
             font-weight: 500;
-        }
-
-        /* Card Click Hint */
-        .weather-card {
-            cursor: pointer;
         }
 
         .card-click-hint {
@@ -650,6 +621,7 @@
         .summary-pill.temp-pill { color: #f8fafc; border-color: rgba(99, 102, 241, 0.4); }
         .summary-pill.rain-pill { color: var(--accent-sky); border-color: rgba(56, 189, 248, 0.4); }
         .summary-pill.wind-pill { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4); }
+        .summary-pill.sun-pill { color: #fde047; border-color: rgba(250, 204, 21, 0.4); }
 
         .chart-legend {
             display: flex;
@@ -797,6 +769,10 @@
                     <span class="stat-value">02.9. – 13.9.</span>
                 </div>
                 <div class="stat-card">
+                    <span class="stat-label">Gesamt-Spanne</span>
+                    <span class="stat-value" id="stat-temp-range">--</span>
+                </div>
+                <div class="stat-card">
                     <span class="stat-label">Status</span>
                     <span class="stat-value status-badge" id="stat-status">
                         <span class="pulse-dot"></span> Live Open-Meteo
@@ -895,7 +871,6 @@
         };
 
         let weatherDataStore = [];
-        let currentFilter = 'all';
         let currentTimeMode = '8-12';
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -917,18 +892,6 @@
                     });
                 });
             }
-
-            const filterPills = document.querySelectorAll('.filter-pill');
-            filterPills.forEach(pill => {
-                pill.addEventListener('click', (e) => {
-                    const button = e.target.closest('.filter-pill');
-                    if (!button) return;
-                    filterPills.forEach(p => p.classList.remove('active'));
-                    button.classList.add('active');
-                    currentFilter = button.getAttribute('data-filter');
-                    renderGrid();
-                });
-            });
 
             const toggleBtns = document.querySelectorAll('.toggle-btn');
             toggleBtns.forEach(btn => {
@@ -970,6 +933,7 @@
                     await new Promise(r => setTimeout(r, 100));
                 }
                 weatherDataStore = results;
+                updateOverallStats();
                 renderGrid();
             } catch (err) {
                 console.error('Fehler beim Laden der Wetterdaten:', err);
@@ -979,7 +943,7 @@
         }
 
         async function fetchForecastForTarget(target, retries = 2) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&hourly=temperature_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_gusts_10m&wind_speed_unit=kmh&timezone=auto&forecast_days=16`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&hourly=temperature_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_gusts_10m&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto&forecast_days=16`;
             
             try {
                 const res = await fetch(url);
@@ -994,6 +958,7 @@
                 
                 const hourly = data.hourly || {};
                 const times = hourly.time || [];
+                const daily = data.daily || {};
                 
                 const dayIndices = [];
                 for (let i = 0; i < times.length; i++) {
@@ -1008,6 +973,17 @@
                         available: false,
                         reason: "Außerhalb des 16-Tage-Fensters"
                     };
+                }
+
+                // Get sunrise and sunset
+                let sunriseStr = '--:--';
+                let sunsetStr = '--:--';
+                if (daily.time && daily.sunrise && daily.sunset) {
+                    const dIdx = daily.time.indexOf(target.date);
+                    if (dIdx !== -1) {
+                        if (daily.sunrise[dIdx]) sunriseStr = daily.sunrise[dIdx].split('T')[1]?.substring(0, 5) || '--:--';
+                        if (daily.sunset[dIdx]) sunsetStr = daily.sunset[dIdx].split('T')[1]?.substring(0, 5) || '--:--';
+                    }
                 }
 
                 const hourlyDetails = dayIndices.map(i => ({
@@ -1071,6 +1047,8 @@
                 return {
                     ...target,
                     available: true,
+                    sunrise: sunriseStr,
+                    sunset: sunsetStr,
                     slots: slotsData,
                     hourlyDetails
                 };
@@ -1086,6 +1064,33 @@
                     available: false,
                     reason: `Fehler: ${err.message}`
                 };
+            }
+        }
+
+        function updateOverallStats() {
+            let overallMin = Infinity;
+            let overallMax = -Infinity;
+            let hasData = false;
+
+            weatherDataStore.forEach(item => {
+                if (item.available && item.hourlyDetails) {
+                    item.hourlyDetails.forEach(h => {
+                        if (h.temp !== null && h.temp !== undefined) {
+                            if (h.temp < overallMin) overallMin = h.temp;
+                            if (h.temp > overallMax) overallMax = h.temp;
+                            hasData = true;
+                        }
+                    });
+                }
+            });
+
+            const statEl = document.getElementById('stat-temp-range');
+            if (statEl) {
+                if (hasData) {
+                    statEl.innerHTML = `${overallMin.toFixed(1)}° <span style="font-weight:400;color:var(--text-muted);font-size:0.8rem;">bis</span> ${overallMax.toFixed(1)}°C`;
+                } else {
+                    statEl.textContent = '--';
+                }
             }
         }
 
@@ -1177,6 +1182,16 @@
                             <span>Wind: <strong>${windStr}</strong> ${windGustsStr ? `<span class="gusts-badge">Böen ${windGustsStr}</span>` : ''}</span>
                         </div>
                     </div>
+                    <div class="metric-row sun-row">
+                        <div class="metric-item" title="Sonnenaufgang">
+                            <span class="metric-icon">🌅</span>
+                            <span>Auf: <strong>${item.sunrise}</strong></span>
+                        </div>
+                        <div class="metric-item" title="Sonnenuntergang">
+                            <span class="metric-icon">🌇</span>
+                            <span>Unter: <strong>${item.sunset}</strong></span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="card-click-hint">
@@ -1208,6 +1223,7 @@
                 document.getElementById('modal-summary-rain').textContent = `🌧️ ${dayStats.rainProb}% (${dayStats.rainSum?.toFixed(1)} mm)`;
                 document.getElementById('modal-summary-wind').textContent = `💨 Max ${Math.round(dayStats.windMax || 0)} km/h`;
             }
+            document.getElementById('modal-summary-sun').textContent = `☀️ 🌅 ${item.sunrise || '--:--'} • 🌇 ${item.sunset || '--:--'}`;
 
             // Render Trend Graph SVG
             const chartWrapper = document.getElementById('chart-wrapper');
@@ -1438,6 +1454,7 @@
                     <span id="modal-summary-temp" class="summary-pill temp-pill">--°C</span>
                     <span id="modal-summary-rain" class="summary-pill rain-pill">--</span>
                     <span id="modal-summary-wind" class="summary-pill wind-pill">--</span>
+                    <span id="modal-summary-sun" class="summary-pill sun-pill">--</span>
                 </div>
             </div>
 
