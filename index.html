@@ -948,8 +948,10 @@
         }
 
         async function fetchForecastForTarget(target, retries = 2) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&hourly=temperature_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_gusts_10m&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto&forecast_days=16`;
-            
+            // const url = `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&hourly=temperature_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_gusts_10m&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto&forecast_days=16`;
+            // In fetchForecastForTarget:
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${target.lat}&longitude=${target.lon}&hourly=temperature_2m,precipitation_probability,precipitation,weathercode,wind_speed_10m,wind_gusts_10m&daily=sunrise,sunset&wind_speed_unit=kmh&timezone=auto&forecast_days=16&past_days=31`;
+
             try {
                 const res = await fetch(url);
                 
