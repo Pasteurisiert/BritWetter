@@ -769,7 +769,7 @@
                     <span class="stat-value">02.9. – 13.9.</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Gesamt-Spanne</span>
+                    <span class="stat-label">Spanne (8-20 Uhr)</span>
                     <span class="stat-value" id="stat-temp-range">--</span>
                 </div>
                 <div class="stat-card">
@@ -1071,11 +1071,12 @@
             let overallMin = Infinity;
             let overallMax = -Infinity;
             let hasData = false;
-
+        
             weatherDataStore.forEach(item => {
                 if (item.available && item.hourlyDetails) {
                     item.hourlyDetails.forEach(h => {
-                        if (h.temp !== null && h.temp !== undefined) {
+                        // Berücksichtigt exakt das Tagesfenster 08:00 bis 20:00 Uhr
+                        if (h.hour >= 8 && h.hour <= 20 && h.temp !== null && h.temp !== undefined) {
                             if (h.temp < overallMin) overallMin = h.temp;
                             if (h.temp > overallMax) overallMax = h.temp;
                             hasData = true;
@@ -1083,7 +1084,7 @@
                     });
                 }
             });
-
+        
             const statEl = document.getElementById('stat-temp-range');
             if (statEl) {
                 if (hasData) {
@@ -1093,6 +1094,7 @@
                 }
             }
         }
+
 
         function renderGrid() {
             const grid = document.getElementById('weather-grid');
