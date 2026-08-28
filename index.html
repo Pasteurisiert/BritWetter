@@ -813,19 +813,40 @@
     </div>
 
     <script>
-        const TARGETS = [
-            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-02", region: "ch" },
-            { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-02", region: "hamburg" },
-            { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-03", region: "hamburg" },
-            { city: "Cork", country: "IE", lat: 51.8985, lon: -8.4756, date: "2026-09-05", region: "gb" },
-            { city: "Dublin", country: "IE", lat: 53.3498, lon: -6.2603, date: "2026-09-06", region: "gb" },
-            { city: "Belfast", country: "UK", lat: 54.5973, lon: -5.9301, date: "2026-09-07", region: "gb" },
-            { city: "Glasgow", country: "UK", lat: 55.8642, lon: -4.2518, date: "2026-09-08", region: "gb" },
-            { city: "Kirkwall", country: "UK", lat: 58.9809, lon: -2.9605, date: "2026-09-10", region: "gb" },
-            { city: "Invergordon", country: "UK", lat: 57.6896, lon: -4.1685, date: "2026-09-11", region: "gb" },
-            { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-13", region: "hamburg" },
-            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-13", region: "ch" },
-        ];
+        let TARGETS = [];
+
+        async function fetchWeatherData() {
+            showLoader(true);
+            weatherDataStore = [];
+        
+            try {
+                // Lädt die erstellte JSON-Datei aus demselben Ordner
+                const res = await fetch('trips.json');
+                if (!res.ok) throw new Error('trips.json konnte nicht geladen werden.');
+                TARGETS = await res.json();
+        
+                // Stopp-Zähler im Header dynamisch setzen
+                const countEl = document.getElementById('stat-count');
+                if (countEl) countEl.textContent = `${TARGETS.length} Stopps`;
+        
+                const results = [];
+                for (const item of TARGETS) {
+                    const data = await fetchForecastForTarget(item);
+                    results.push(data);
+                    await new Promise(r => setTimeout(r, 100));
+                }
+                weatherDataStore = results;
+                updateOverallStats();
+                renderGrid();
+            } catch (err) {
+                console.error('Fehler beim Laden der Wetterdaten:', err);
+                const grid = document.getElementById('weather-grid');
+                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Fehler: trips.json nicht gefunden oder ungültig.</div>`;
+            } finally {
+                showLoader(false);
+            }
+        }
+
 
 
         const WEATHER_META = {
