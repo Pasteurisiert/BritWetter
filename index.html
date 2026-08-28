@@ -818,38 +818,58 @@
         async function fetchWeatherData() {
             showLoader(true);
             weatherDataStore = [];
+            const grid = document.getElementById('weather-grid');
         
             try {
-                const res = await fetch('./trips.json?v=' + Date.now());
-                if (!res.ok) throw new Error(`HTTP-Status ${res.status} beim Laden von trips.json`);
+                // 1. JSON laden mit relativem Pfad & Cache-Buster
+                const jsonUrl = './trips.json?v=' + Date.now();
+                const res = await fetch(jsonUrl);
+                
+                if (!res.ok) {
+                    throw new Error(`Konnte trips.json nicht laden (HTTP ${res.status}). Prüfe, ob die Datei im Repository liegt.`);
+                }
                 
                 TARGETS = await res.json();
-                
+                console.log("Geladene TARGETS aus JSON:", TARGETS);
+        
                 if (!Array.isArray(TARGETS) || TARGETS.length === 0) {
-                    throw new Error("trips.json ist leer oder kein gültiges Array.");
+                    throw new Error("trips.json wurde geladen, enthält aber keine Einträge ([ ]).");
                 }
         
                 const countEl = document.getElementById('stat-count');
                 if (countEl) countEl.textContent = `${TARGETS.length} Stopps`;
         
+                // 2. Wetterdaten für alle Ziele abrufen
                 const results = [];
                 for (const item of TARGETS) {
                     const data = await fetchForecastForTarget(item);
                     results.push(data);
                     await new Promise(r => setTimeout(r, 100));
                 }
-                
+        
                 weatherDataStore = results;
+                console.log("Fertiger weatherDataStore:", weatherDataStore);
+                
                 updateOverallStats();
                 renderGrid();
+        
             } catch (err) {
-                console.error('Fehler beim Laden der Reisedaten:', err);
-                const grid = document.getElementById('weather-grid');
-                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">⚠️ ${err.message}</div>`;
+                console.error("Fehler im Ablauf:", err);
+                showLoader(false);
+                grid.classList.remove('hidden');
+                grid.innerHTML = `
+                    <div class="out-notice" style="grid-column: 1/-1; background: rgba(244, 63, 94, 0.15); border-color: var(--accent-rose); color: #fca5a5; padding: 20px; text-align: left;">
+                        <strong>⚠️ Ladefehler:</strong><br>
+                        ${err.message}<br><br>
+                        <small style="color: #cbd5e1;">Test-Tipp: Öffne deine Repo-URL direkt mit <code>/trips.json</code> am Ende im Browser, um zu sehen, ob GitHub die Datei ausliefert.</small>
+                    </div>
+                `;
+                return;
             } finally {
                 showLoader(false);
             }
         }
+
 
 
 
