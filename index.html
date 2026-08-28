@@ -820,12 +820,15 @@
             weatherDataStore = [];
         
             try {
-                // Lädt die erstellte JSON-Datei aus demselben Ordner
-                const res = await fetch('trips.json');
-                if (!res.ok) throw new Error('trips.json konnte nicht geladen werden.');
+                const res = await fetch('trips.json?v=' + Date.now());
+                if (!res.ok) throw new Error(`HTTP-Status ${res.status} beim Laden von trips.json`);
+                
                 TARGETS = await res.json();
+                
+                if (!Array.isArray(TARGETS) || TARGETS.length === 0) {
+                    throw new Error("trips.json ist leer oder kein gültiges Array.");
+                }
         
-                // Stopp-Zähler im Header dynamisch setzen
                 const countEl = document.getElementById('stat-count');
                 if (countEl) countEl.textContent = `${TARGETS.length} Stopps`;
         
@@ -835,17 +838,19 @@
                     results.push(data);
                     await new Promise(r => setTimeout(r, 100));
                 }
+                
                 weatherDataStore = results;
                 updateOverallStats();
                 renderGrid();
             } catch (err) {
-                console.error('Fehler beim Laden der Wetterdaten:', err);
+                console.error('Fehler beim Laden der Reisedaten:', err);
                 const grid = document.getElementById('weather-grid');
-                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">Fehler: trips.json nicht gefunden oder ungültig.</div>`;
+                grid.innerHTML = `<div class="out-notice" style="grid-column: 1/-1;">⚠️ ${err.message}</div>`;
             } finally {
                 showLoader(false);
             }
         }
+
 
 
 
