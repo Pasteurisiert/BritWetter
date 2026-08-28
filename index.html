@@ -762,7 +762,7 @@
             <div class="stats-bar">
                 <div class="stat-card">
                     <span class="stat-label">Stopps</span>
-                    <span class="stat-value" id="stat-count">9 Tage</span>
+                    <span class="stat-value" id="stat-count">11 Stationen</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Zeitraum</span>
@@ -814,6 +814,7 @@
 
     <script>
         const TARGETS = [
+            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-02", region: "ch" },
             { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-02", region: "hamburg" },
             { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-03", region: "hamburg" },
             { city: "Cork", country: "IE", lat: 51.8985, lon: -8.4756, date: "2026-09-05", region: "gb" },
@@ -823,7 +824,9 @@
             { city: "Kirkwall", country: "UK", lat: 58.9809, lon: -2.9605, date: "2026-09-10", region: "gb" },
             { city: "Invergordon", country: "UK", lat: 57.6896, lon: -4.1685, date: "2026-09-11", region: "gb" },
             { city: "Hamburg", country: "DE", lat: 53.5511, lon: 9.9937, date: "2026-09-13", region: "hamburg" },
+            { city: "Zürich", country: "CH", lat: 47.3769, lon: 8.5417, date: "2026-09-13", region: "ch" },
         ];
+
 
         const WEATHER_META = {
             0: { text: "Klar", icon: "☀️" },
@@ -859,8 +862,10 @@
         const COUNTRY_FLAGS = {
             "DE": "🇩🇪",
             "IE": "🇮🇪",
-            "UK": "🇬🇧"
+            "UK": "🇬🇧",
+            "CH": "🇨🇭"
         };
+
 
         const TIME_SLOTS = {
             '8-12': { label: '☀️ 8–12 Uhr', minHour: 8, maxHour: 12 },
