@@ -126,8 +126,71 @@
         .metric-row.border-top { padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.07); }
         .metric-item { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
 
+        .card-click-hint {
+            font-size: 0.73rem; color: var(--text-muted); text-align: right; margin-top: 10px;
+            display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-weight: 600;
+        }
+        .weather-card:hover .card-click-hint { color: var(--accent-sky); }
+
         .out-notice { padding: 16px; background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); color: #fcd34d; font-size: 0.85rem; text-align: center; }
         .hidden { display: none !important; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 8, 16, 0.82); backdrop-filter: blur(16px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-card {
+            background: rgba(15, 23, 42, 0.96); border: 1px solid var(--card-border-glow);
+            border-radius: var(--radius-xl); width: 100%; max-width: 820px; max-height: 90vh;
+            overflow-y: auto; padding: 24px; position: relative; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+        .modal-close-btn {
+            position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+            border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-close-btn:hover { background: rgba(244, 63, 94, 0.2); color: var(--accent-rose); }
+        .modal-header { margin-bottom: 20px; padding-right: 40px; }
+        .modal-title-group { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .modal-flag { font-size: 2rem; }
+        .modal-city { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+        .modal-date { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
+        .modal-summary-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+        .summary-pill {
+            padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .summary-pill.temp-pill { color: #f8fafc; border-color: rgba(99, 102, 241, 0.4); }
+        .summary-pill.rain-pill { color: var(--accent-sky); border-color: rgba(56, 189, 248, 0.4); }
+        .summary-pill.wind-pill { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4); }
+        .summary-pill.sun-pill { color: #fde047; border-color: rgba(250, 204, 21, 0.4); }
+
+        .chart-legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; color: var(--text-secondary); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+        .legend-color.temp-color { background: var(--accent-indigo); }
+        .legend-color.rain-color { background: var(--accent-sky); }
+
+        .chart-scroll-container {
+            overflow-x: auto; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px;
+        }
+        .chart-wrapper { min-width: 640px; }
+
+        .hourly-table-container { margin-top: 16px; }
+        .table-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+        .hourly-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+        .hourly-card {
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: var(--radius-md); padding: 8px 6px; text-align: center; font-size: 0.78rem;
+        }
+        .hourly-time { font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
+        .hourly-icon { font-size: 1.2rem; margin: 2px 0; }
+        .hourly-temp { font-weight: 800; color: var(--text-primary); }
+        .hourly-rain { font-size: 0.72rem; color: var(--accent-sky); margin-top: 2px; }
+
         .app-footer { margin-top: 36px; text-align: center; font-size: 0.78rem; color: var(--text-muted); }
     </style>
 </head>
@@ -189,12 +252,54 @@
         </footer>
     </div>
 
+    <!-- Trend Modal -->
+    <div id="trend-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <button id="modal-close-btn" class="modal-close-btn" aria-label="Schließen">&times;</button>
+            
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <span id="modal-city-flag" class="modal-flag">📍</span>
+                    <div>
+                        <h2 id="modal-city-name" class="modal-city">Stadt</h2>
+                        <p id="modal-date-text" class="modal-date">Datum</p>
+                    </div>
+                </div>
+                <div class="modal-summary-pills">
+                    <span id="modal-summary-temp" class="summary-pill temp-pill">--°C</span>
+                    <span id="modal-summary-rain" class="summary-pill rain-pill">--</span>
+                    <span id="modal-summary-wind" class="summary-pill wind-pill">--</span>
+                    <span id="modal-summary-sun" class="summary-pill sun-pill">--</span>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-color temp-color"></span> Temperatur (°C)</div>
+                    <div class="legend-item"><span class="legend-color rain-color"></span> Niederschlag (mm / %)</div>
+                </div>
+                
+                <div class="chart-scroll-container">
+                    <div id="chart-wrapper" class="chart-wrapper"></div>
+                </div>
+
+                <div class="hourly-table-container">
+                    <h3 class="table-title">Stündlicher Verlauf (24 Stunden)</h3>
+                    <div id="hourly-table" class="hourly-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const WEATHER_META = {
             0: { text: "Klar", icon: "☀️" }, 1: { text: "Meist sonnig", icon: "🌤️" }, 2: { text: "Teilweise bewölkt", icon: "⛅" },
-            3: { text: "Bedeckt", icon: "☁️" }, 45: { text: "Nebel", icon: "🌫️" }, 51: { text: "Leichter Niesel", icon: "🌦️" },
+            3: { text: "Bedeckt", icon: "☁️" }, 45: { text: "Nebel", icon: "🌫️" }, 48: { text: "Reifnebel", icon: "🌫️" },
+            51: { text: "Leichter Niesel", icon: "🌦️" }, 53: { text: "Nieselregen", icon: "🌧️" }, 55: { text: "Starker Niesel", icon: "🌧️" },
             61: { text: "Leichter Regen", icon: "🌧️" }, 63: { text: "Mäßiger Regen", icon: "🌧️" }, 65: { text: "Starker Regen", icon: "🌧️" },
-            80: { text: "Schauer", icon: "🌦️" }, 95: { text: "Gewitter", icon: "⛈️" }
+            71: { text: "Leichter Schnee", icon: "❄️" }, 75: { text: "Starker Schnee", icon: "❄️" },
+            80: { text: "Leichte Schauer", icon: "🌦️" }, 81: { text: "Regenschauer", icon: "🌧️" }, 82: { text: "Starke Schauer", icon: "🌧️" },
+            95: { text: "Gewitter", icon: "⛈️" }
         };
 
         const COUNTRY_FLAGS = { "DE": "🇩🇪", "IE": "🇮🇪", "UK": "🇬🇧", "CH": "🇨🇭", "FR": "🇫🇷", "IT": "🇮🇹", "AT": "🇦🇹", "ES": "🇪🇸" };
@@ -207,7 +312,6 @@
         let TARGETS = [];
         let weatherDataStore = [];
         let currentTimeMode = '8-12';
-        let currentFilter = 'all';
 
         document.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
@@ -231,6 +335,14 @@
                     renderGrid();
                 });
             });
+
+            const modal = document.getElementById('trend-modal');
+            const closeBtn = document.getElementById('modal-close-btn');
+            if (closeBtn) closeBtn.addEventListener('click', closeTrendModal);
+            if (modal) {
+                modal.addEventListener('click', (e) => { if (e.target === modal) closeTrendModal(); });
+            }
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTrendModal(); });
         }
 
         async function fetchWeatherData() {
@@ -299,6 +411,7 @@
 
                 const hourlyDetails = dayIndices.map(i => ({
                     hour: parseInt(times[i].split('T')[1].split(':')[0], 10),
+                    hourStr: times[i].split('T')[1]?.substring(0, 5) || `${i}:00`,
                     temp: hourly.temperature_2m?.[i],
                     rainProb: hourly.precipitation_probability?.[i],
                     rainSum: hourly.precipitation?.[i],
@@ -373,12 +486,13 @@
                 const card = document.createElement('div');
                 card.className = `weather-card ${!item.available ? 'out-of-range' : ''}`;
                 const flag = COUNTRY_FLAGS[item.country] || '📍';
+                const formattedDate = formatDateString(item.date);
 
                 if (!item.available) {
                     card.innerHTML = `
                         <div class="card-header">
                             <div class="city-badge"><span>${flag}</span> <span>${item.city}</span></div>
-                            <div class="date-pill">${item.date}</div>
+                            <div class="date-pill">${formattedDate}</div>
                         </div>
                         <div class="out-notice">⏳ ${item.reason}</div>
                     `;
@@ -387,7 +501,7 @@
                     card.innerHTML = `
                         <div class="card-header">
                             <div class="city-badge"><span>${flag}</span> <span>${item.city}</span></div>
-                            <div class="date-pill">${item.date}</div>
+                            <div class="date-pill">${formattedDate}</div>
                         </div>
                         <div class="card-body">
                             <div class="weather-info">
@@ -409,10 +523,211 @@
                                 <span class="metric-item">🌇 Unter: <strong>${item.sunset}</strong></span>
                             </div>
                         </div>
+                        <div class="card-click-hint">
+                            <span>📈 Trendgraph anzeigen</span> &rarr;
+                        </div>
                     `;
+
+                    card.addEventListener('click', () => {
+                        openTrendModal(item);
+                    });
                 }
                 grid.appendChild(card);
             });
+        }
+
+        function openTrendModal(item) {
+            const modal = document.getElementById('trend-modal');
+            if (!modal) return;
+
+            const flag = COUNTRY_FLAGS[item.country] || '📍';
+            const formattedDate = formatDateStringFull(item.date);
+            const dayStats = item.slots ? item.slots['24h'] : null;
+
+            document.getElementById('modal-city-flag').textContent = flag;
+            document.getElementById('modal-city-name').textContent = item.city;
+            document.getElementById('modal-date-text').textContent = formattedDate;
+
+            if (dayStats) {
+                document.getElementById('modal-summary-temp').textContent = `${dayStats.icon} Max ${dayStats.tMax?.toFixed(1)}°C / Min ${dayStats.tMin?.toFixed(1)}°C`;
+                document.getElementById('modal-summary-rain').textContent = `🌧️ ${dayStats.rainProb}% (${dayStats.rainSum?.toFixed(1)} mm)`;
+                document.getElementById('modal-summary-wind').textContent = `💨 Max ${Math.round(dayStats.windMax || 0)} km/h`;
+            }
+            document.getElementById('modal-summary-sun').textContent = `☀️ 🌅 ${item.sunrise || '--:--'} • 🌇 ${item.sunset || '--:--'}`;
+
+            const chartWrapper = document.getElementById('chart-wrapper');
+            if (chartWrapper && item.hourlyDetails) {
+                chartWrapper.innerHTML = generateTrendSVG(item.hourlyDetails);
+            }
+
+            const hourlyGrid = document.getElementById('hourly-table');
+            if (hourlyGrid && item.hourlyDetails) {
+                hourlyGrid.innerHTML = '';
+                item.hourlyDetails.forEach(h => {
+                    const icon = h.weatherCode !== null ? (WEATHER_META[h.weatherCode]?.icon || '❓') : '⏳';
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'hourly-card';
+                    cardEl.innerHTML = `
+                        <div class="hourly-time">${h.hourStr}</div>
+                        <div class="hourly-icon">${icon}</div>
+                        <div class="hourly-temp">${h.temp !== null ? h.temp.toFixed(1) + '°' : '--'}</div>
+                        <div class="hourly-rain">${h.rainProb || 0}% (${h.rainSum ? h.rainSum.toFixed(1) : '0'}mm)</div>
+                    `;
+                    hourlyGrid.appendChild(cardEl);
+                });
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTrendModal() {
+            const modal = document.getElementById('trend-modal');
+            if (modal) modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function generateTrendSVG(hourlyList) {
+            if (!hourlyList || !hourlyList.length) return '<p>Keine Stundendaten vorhanden.</p>';
+
+            const svgWidth = 720;
+            const svgHeight = 220;
+            const paddingLeft = 35;
+            const paddingRight = 35;
+            const paddingTop = 35;
+            const paddingBottom = 45;
+
+            const graphW = svgWidth - paddingLeft - paddingRight;
+            const graphH = svgHeight - paddingTop - paddingBottom;
+
+            const temps = hourlyList.map(d => d.temp).filter(v => v != null);
+            const rainSums = hourlyList.map(d => d.rainSum).filter(v => v != null);
+            const rainProbs = hourlyList.map(d => d.rainProb).filter(v => v != null);
+
+            let minT = Math.min(...temps);
+            let maxT = Math.max(...temps);
+            if (minT === maxT) { minT -= 1; maxT += 1; }
+            const tempRange = maxT - minT;
+
+            const maxRainSum = Math.max(...rainSums, 1);
+            const n = hourlyList.length;
+            const stepX = graphW / (n - 1);
+
+            let barsSVG = '';
+            for (let i = 0; i < n; i++) {
+                const d = hourlyList[i];
+                const x = paddingLeft + i * stepX;
+                const rVal = d.rainSum || 0;
+                const rProb = d.rainProb || 0;
+                
+                let barH = 0;
+                if (rVal > 0) {
+                    barH = Math.min(graphH * 0.75, (rVal / maxRainSum) * (graphH * 0.65) + 8);
+                } else if (rProb > 0) {
+                    barH = (rProb / 100) * (graphH * 0.4);
+                }
+
+                if (barH > 0) {
+                    const barW = Math.max(6, stepX * 0.55);
+                    const barX = x - barW / 2;
+                    const barY = paddingTop + graphH - barH;
+                    
+                    barsSVG += `
+                        <rect x="${barX.toFixed(1)}" y="${barY.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" 
+                              rx="3" fill="url(#rainGrad)" opacity="0.85">
+                            <title>${d.hourStr} Uhr: ${rVal.toFixed(1)} mm (${rProb}% Regenwahrscheinlichkeit)</title>
+                        </rect>
+                    `;
+                    
+                    if (rVal >= 0.2 || rProb >= 40) {
+                        const labelText = rVal > 0 ? `${rVal.toFixed(1)}m` : `${rProb}%`;
+                        barsSVG += `
+                            <text x="${x.toFixed(1)}" y="${(barY - 4).toFixed(1)}" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="600">${labelText}</text>
+                        `;
+                    }
+                }
+            }
+
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const d = hourlyList[i];
+                const x = paddingLeft + i * stepX;
+                const y = paddingTop + graphH - ((d.temp - minT) / tempRange) * (graphH * 0.75) - 10;
+                points.push({ x, y, temp: d.temp, hour: d.hour, icon: d.weatherCode !== null ? (WEATHER_META[d.weatherCode]?.icon || '') : '' });
+            }
+
+            let dLine = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+            for (let i = 1; i < points.length; i++) {
+                const pPrev = points[i - 1];
+                const pCurr = points[i];
+                const cpX1 = pPrev.x + stepX * 0.4;
+                const cpY1 = pPrev.y;
+                const cpX2 = pCurr.x - stepX * 0.4;
+                const cpY2 = pCurr.y;
+                dLine += ` C ${cpX1.toFixed(1)} ${cpY1.toFixed(1)}, ${cpX2.toFixed(1)} ${cpY2.toFixed(1)}, ${pCurr.x.toFixed(1)} ${pCurr.y.toFixed(1)}`;
+            }
+
+            const dArea = `${dLine} L ${points[points.length - 1].x.toFixed(1)} ${(paddingTop + graphH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(paddingTop + graphH).toFixed(1)} Z`;
+
+            let pointsSVG = '';
+            let xLabelsSVG = '';
+
+            for (let i = 0; i < n; i++) {
+                const pt = points[i];
+                const showLabel = (i % 2 === 0 || i === n - 1);
+                
+                if (showLabel) {
+                    pointsSVG += `
+                        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="2"/>
+                        <text x="${pt.x.toFixed(1)}" y="${(pt.y - 8).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">${pt.temp.toFixed(1)}°</text>
+                    `;
+
+                    xLabelsSVG += `
+                        <text x="${pt.x.toFixed(1)}" y="${(paddingTop + graphH + 18).toFixed(1)}" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">${pt.hour < 10 ? '0' + pt.hour : pt.hour}:00</text>
+                        <text x="${pt.x.toFixed(1)}" y="${(paddingTop + graphH + 34).toFixed(1)}" text-anchor="middle" font-size="12">${pt.icon}</text>
+                    `;
+                }
+            }
+
+            return `
+                <svg viewBox="0 0 ${svgWidth} ${svgHeight}" width="100%" height="auto" style="overflow: visible;">
+                    <defs>
+                        <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.45"/>
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0.0"/>
+                        </linearGradient>
+                        <linearGradient id="rainGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9"/>
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0.5"/>
+                        </linearGradient>
+                    </defs>
+
+                    <line x1="${paddingLeft}" y1="${paddingTop + graphH}" x2="${svgWidth - paddingRight}" y2="${paddingTop + graphH}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    ${barsSVG}
+                    <path d="${dArea}" fill="url(#tempGrad)"/>
+                    <path d="${dLine}" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/>
+                    ${pointsSVG}
+                    ${xLabelsSVG}
+                </svg>
+            `;
+        }
+
+        function formatDateString(isoStr) {
+            const parts = isoStr.split('-');
+            if (parts.length !== 3) return isoStr;
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+            const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+            return `${days[d.getDay()]}, ${String(d.getDate()).padStart(2, '0')}. ${months[d.getMonth()]}`;
+        }
+
+        function formatDateStringFull(isoStr) {
+            const parts = isoStr.split('-');
+            if (parts.length !== 3) return isoStr;
+            const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+            return `${days[d.getDay()]}, ${String(d.getDate()).padStart(2, '0')}. ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
         function showLoader(visible) {
