@@ -14,6 +14,14 @@
     "lon": 9.9937,
     "date": "2026-09-02",
     "region": "hamburg"
+  }, 
+  {
+    "city": "Hamburg",
+    "country": "DE",
+    "lat": 53.5511,
+    "lon": 9.9937,
+    "date": "2026-09-03",
+    "region": "hamburg"
   },
   {
     "city": "Cork",
