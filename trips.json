@@ -2,89 +2,81 @@
   {
     "city": "Zürich",
     "country": "CH",
-    "lat": 47.3769,
-    "lon": 8.5417,
-    "date": "2026-09-02",
+    "lat": 47.3667,
+    "lon": 8.55,
+    "date": "2026-12-12",
     "region": "ch"
   },
   {
-    "city": "Hamburg",
-    "country": "DE",
-    "lat": 53.5511,
-    "lon": 9.9937,
-    "date": "2026-09-02",
-    "region": "hamburg"
-  }, 
-  {
-    "city": "Hamburg",
-    "country": "DE",
-    "lat": 53.5511,
-    "lon": 9.9937,
-    "date": "2026-09-03",
-    "region": "hamburg"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-12",
+    "region": "dk"
   },
   {
-    "city": "Cork",
-    "country": "IE",
-    "lat": 51.8985,
-    "lon": -8.4756,
-    "date": "2026-09-05",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-13",
+    "region": "dk"
   },
   {
-    "city": "Dublin",
-    "country": "IE",
-    "lat": 53.3498,
-    "lon": -6.2603,
-    "date": "2026-09-06",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-14",
+    "region": "dk"
   },
   {
-    "city": "Belfast",
-    "country": "UK",
-    "lat": 54.5973,
-    "lon": -5.9301,
-    "date": "2026-09-07",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-15",
+    "region": "dk"
   },
   {
-    "city": "Glasgow",
-    "country": "UK",
-    "lat": 55.8642,
-    "lon": -4.2518,
-    "date": "2026-09-08",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-16",
+    "region": "dk"
   },
   {
-    "city": "Kirkwall",
-    "country": "UK",
-    "lat": 58.9809,
-    "lon": -2.9605,
-    "date": "2026-09-10",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-17",
+    "region": "dk"
   },
   {
-    "city": "Invergordon",
-    "country": "UK",
-    "lat": 57.6896,
-    "lon": -4.1685,
-    "date": "2026-09-11",
-    "region": "gb"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-18",
+    "region": "dk"
   },
   {
-    "city": "Hamburg",
-    "country": "DE",
-    "lat": 53.5511,
-    "lon": 9.9937,
-    "date": "2026-09-13",
-    "region": "hamburg"
+    "city": "Kopenhagen",
+    "country": "DK",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "date": "2026-12-19",
+    "region": "dk"
   },
   {
     "city": "Zürich",
     "country": "CH",
-    "lat": 47.3769,
-    "lon": 8.5417,
-    "date": "2026-09-13",
+    "lat": 47.3667,
+    "lon": 8.55,
+    "date": "2026-12-19",
     "region": "ch"
   }
 ]
